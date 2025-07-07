@@ -1,0 +1,234 @@
+{
+  "name": "Node Exporter Full",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0037204d-2bba-4cbc-9cf3-34ca63b7135d",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dashboardUidOrUrl": "rYdddlPWk"
+      },
+      "type": "n8n-nodes-base.grafana",
+      "typeVersion": 1,
+      "position": [
+        220,
+        0
+      ],
+      "id": "874cf12a-0341-46e0-9bd4-933421dc03ba",
+      "name": "Get a dashboard"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "You are a Grafana Monitoring Expert working in n8n workflow UID: rYdddlPWk\n\nCONTEXT:\n\nGet dashboard data from Grafana API\nProvide MCP-Grafana tools\nAnalyze and provide insights from monitoring data\nAVAILABLE MCP TOOLS:\n\nmcp_grafana_query_prometheus: Query real-time metrics\nmcp_grafana_query_loki_logs: Pull logs for analysis\nmcp_grafana_list_alert_rules: Check alert status\nmcp_grafana_get_dashboard_panel_queries: View detailed panel queries\nTASKS:\n\nAnalyze dashboard structure and panels\nQuery current metrics from key panels\nCheck system health and performance\nIdentify anomalies or issues to monitor\nGenerate summary report with recommendations\n\nOUTPUT FORMAT:\n\n{\n\"timestamp\": \"ISO datetime\", \n\"dashboard_info\": { \n\"name\": \"dashboard name\", \n\"panels_count\": \"count of panels\", \n\"key_metrics\": [\"metric1\", \"metric2\"] \n}, \n\"current_metrics\": { \n\"cpu_usage\": \"percentage\", \n\"memory_usage\": \"percentage\", \n\"disk_usage\": \"percentage\", \n\"network_traffic\": \"mbps\" \n}, \n\"alerts\": [ \n{ \n\"severity\": \"warning|critical\", \n\"message\": \"description\", \n\"metric\": \"metric name\", \n\"current_value\": \"value\", \n\"threshold\": \"threshold value\" \n} \n], \n\"recommendations\": [ \n\"actionable recommendation 1\", \n\"actionable recommendation 2\" \n], \n\"next_check_focus\": [\"areas to monitor closely\"]\n}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ],
+      "id": "4c65ff7c-72c8-4572-8b24-438bedab94aa",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        468,
+        220
+      ],
+      "id": "c1e181d8-d9c3-49f8-bc85-e1fd965e5ca1",
+      "name": "Google Gemini Chat Model"
+    },
+    {
+      "parameters": {
+        "sseEndpoint": "http://host.docker.internal:8000/sse"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1,
+      "position": [
+        588,
+        220
+      ],
+      "id": "e7319817-5242-42b1-8d0c-bbcd4d854dcd",
+      "name": "MCP Client"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an expert monitoring report generator for Grafana and Prometheus.\n\nYour task is to analyze the JSON input in {{ $json.output }} and transform it into a clear, human-readable plain text summary that can be sent via email to system administrators.\n\nThe goal is to summarize the system\u2019s health and key metrics (CPU, Memory, Disk, Network), identify any alerts or anomalies, and suggest recommendations and focus points for the next check.\n\nBe concise, use professional language, and format clearly using section headings such as:\n\n- Subject: [Dashboard Name] - [Date]\n- Key Metrics Summary\n- System Status\n- Alerts (if any)\n- Recommendations\n- Focus Areas for Next Check\n- Metrics Covered (optional)\n\nOmit sections that are empty. Use bullet points and proper spacing. Output in English plaintext only \u2014 do not include any JSON, code blocks, or markdown syntax.\n\nMake sure the report is easy to copy and paste into an email.\n\nINPUT: {{ $json.output }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        816,
+        0
+      ],
+      "id": "e42d0e77-620a-4edc-b077-63749d5dda63",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-1.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        840,
+        220
+      ],
+      "id": "e196c2fc-0504-47be-afb0-72c123cb8089",
+      "name": "Google Gemini Chat Model1"
+    },
+    {
+      "parameters": {
+        "sendTo": "tteenntt.2003@hotmail.com",
+        "subject": "report",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1180,
+        0
+      ],
+      "id": "9de8652f-b70a-4211-945d-0aac0c0ae15d",
+      "name": "Send a message",
+      "webhookId": "a9d65267-77fa-4c35-8392-480070ea1eb0"
+    },
+    {
+      "parameters": {
+        "content": "## sent report from node exporter to email demo\n \n**Double click** to edit me. [Guide](https://docs.n8n.io/workflows/sticky-notes/)",
+        "height": 480,
+        "width": 1420
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -80
+      ],
+      "id": "57e31ecc-766b-4a5f-9372-dd8bd7a7d15f",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get a dashboard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a dashboard": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Bangkok",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "958a52dc-f96a-42ec-af36-156d42467101",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cdb6494b36a530be3ebde58c7ce8952e8fbe21afa94d0090770d1634fa2c1496"
+  },
+  "id": "qsWHoTC1kT8SBDKM",
+  "tags": []
+}
